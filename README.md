@@ -71,6 +71,30 @@ py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 
 [构建工作流](.github/workflows/build.yml) 运行单元测试、构建与 APK 校验。校验检查模块入口、Xposed 元数据、未声明权限及未打包编译用桩；它不是完整安全审计，也不能代替真机测试。首次 GitHub Actions 构建已验证通过，后续仍应以每次提交的工作流结果为准。
 
+## 移植到其他语言
+
+当前源码把简体中文译文直接编译进 APK，不支持安装后切换语言，也不是可单独导入的语言包。移植其他语言时，建议先 Fork 仓库，再为每种语言建立独立分支，例如 `lang/ja-JP` 或 `lang/de-DE`。
+
+1. 保留英文原文、资源条目名、匹配条件和正则表达式，只替换目标语言译文。主要入口如下：
+
+   | 文件 | 内容 |
+   | --- | --- |
+   | [`ResourceTranslationDictionary.java`](app/src/main/java/io/github/fr24zh/localizer/ResourceTranslationDictionary.java) | 按 Android 资源条目名匹配的文本和格式模板 |
+   | [`TranslationDictionary.java`](app/src/main/java/io/github/fr24zh/localizer/TranslationDictionary.java) | 英文原文与译文的精确映射 |
+   | [`SettingsArrayTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/SettingsArrayTranslation.java) | 设置页数组选项 |
+   | [`DynamicLabelTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/DynamicLabelTranslation.java) | 航班、呼号和机型等动态标签 |
+   | [`FlightDetailViewTextTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/FlightDetailViewTextTranslation.java) | 航班详情中的受约束动态文本 |
+   | [`MapAccessibilityTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/MapAccessibilityTranslation.java) | 地图无障碍描述文本 |
+   | [`HookTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/HookTranslation.java) | 复数、数量和特殊格式文本，以及模板安全检查 |
+
+2. 把 [`ResourceTranslationDictionary.java`](app/src/main/java/io/github/fr24zh/localizer/ResourceTranslationDictionary.java) 中用于格式化的 `Locale.SIMPLIFIED_CHINESE` 改为目标语言区域。测试代码中的相同区域设置也要同步调整。不要仅做全仓库机械替换：目标语言的单复数、词序和日期格式可能需要单独实现。
+3. 完整保留 `%s`、`%d`、`%1$d`、`%%` 等格式占位符的数量、类型和位置索引。航班号、机场代码、注册号、时间及其他动态数据应继续由原参数提供，不应写死进译文。
+4. 在 [`strings.xml`](app/src/main/res/values/strings.xml) 和 [`AndroidManifest.xml`](app/src/main/AndroidManifest.xml) 中修改模块显示名称与说明。如果需要与中文版同时安装，还要在 [`app/build.gradle.kts`](app/build.gradle.kts) 中使用不同的 `applicationId`；不要修改目标应用包名 `com.flightradar24free`。只有在同时重命名 Java 包时，才需要同步修改 `namespace`、源码中的 `package` 声明和 [`assets/xposed_init`](app/src/main/assets/xposed_init) 入口类名。
+5. 修改对应的 `app/src/test` 测试期望值，并运行上文的单元测试、APK 构建和 `verify-apk.py` 校验。随后在真机上至少复核地图、搜索、航班详情、机场详情、设置、复数和格式化文本。
+6. 提交 Pull Request 时注明目标语言及区域代码、测试过的 FR24/Android/框架版本和仍未覆盖的页面。不要提交 Flightradar24 原版 APK、反编译产物、完整设备日志或密钥。
+
+建议移植流程：`Fork → lang/<语言代码> 分支 → 翻译 → 自动化测试 → 真机复核 → Pull Request`。
+
 ## 已知边界与反馈
 
 - 机场、城市、航空公司专名、航班号、注册号、单位以及 METAR/TAF 原文保留。
