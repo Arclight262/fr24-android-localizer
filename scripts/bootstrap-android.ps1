@@ -1,0 +1,119 @@
+$ErrorActionPreference = 'Stop'
+
+$projectRoot = Split-Path -Parent $PSScriptRoot
+$toolsRoot = Join-Path $projectRoot '.tools'
+$downloadsRoot = Join-Path $toolsRoot 'downloads'
+$jdkExtractRoot = Join-Path $toolsRoot 'jdk-17'
+$gradleRoot = Join-Path $toolsRoot 'gradle-8.9'
+$androidSdkRoot = Join-Path $toolsRoot 'android-sdk'
+
+New-Item -ItemType Directory -Path $downloadsRoot -Force | Out-Null
+
+function Get-Download {
+    param(
+        [Parameter(Mandatory = $true)][string]$Uri,
+        [Parameter(Mandatory = $true)][string]$Destination,
+        [string]$ExpectedSha256
+    )
+
+    $destinationPath = [IO.Path]::GetFullPath($Destination)
+    $downloadsPath = [IO.Path]::GetFullPath($downloadsRoot) + [IO.Path]::DirectorySeparatorChar
+    if (-not $destinationPath.StartsWith($downloadsPath, [StringComparison]::OrdinalIgnoreCase)) {
+        throw "Download destination must stay inside $downloadsRoot"
+    }
+
+    if (Test-Path -LiteralPath $Destination) {
+        if (-not $ExpectedSha256) {
+            return
+        }
+        $actualSha256 = (Get-FileHash -LiteralPath $Destination -Algorithm SHA256).Hash
+        if ($actualSha256.Equals($ExpectedSha256, [StringComparison]::OrdinalIgnoreCase)) {
+            return
+        }
+        Remove-Item -LiteralPath $Destination -Force
+    }
+
+    $partialDestination = "$Destination.partial"
+    if (Test-Path -LiteralPath $partialDestination) {
+        Remove-Item -LiteralPath $partialDestination -Force
+    }
+
+    Write-Host "Downloading $Uri"
+    Start-BitsTransfer -Source $Uri -Destination $partialDestination -DisplayName 'FR24 local Android build bootstrap'
+
+    if ($ExpectedSha256) {
+        $actualSha256 = (Get-FileHash -LiteralPath $partialDestination -Algorithm SHA256).Hash
+        if (-not $actualSha256.Equals($ExpectedSha256, [StringComparison]::OrdinalIgnoreCase)) {
+            throw "SHA-256 mismatch for $Uri"
+        }
+    }
+
+    Move-Item -LiteralPath $partialDestination -Destination $Destination
+}
+
+$jdkArchive = Join-Path $downloadsRoot 'temurin-jdk17.zip'
+Get-Download -Uri 'https://api.adoptium.net/v3/binary/latest/17/ga/windows/x64/jdk/hotspot/normal/eclipse' -Destination $jdkArchive
+
+if (-not (Test-Path -LiteralPath $jdkExtractRoot)) {
+    Expand-Archive -LiteralPath $jdkArchive -DestinationPath $jdkExtractRoot
+}
+
+$javaExecutable = Get-ChildItem -LiteralPath $jdkExtractRoot -Filter 'java.exe' -File -Recurse |
+    Where-Object { $_.FullName -match '[\\/]bin[\\/]java\.exe$' } |
+    Select-Object -First 1
+if (-not $javaExecutable) {
+    throw 'Portable JDK extraction did not produce bin\java.exe'
+}
+$env:JAVA_HOME = Split-Path -Parent (Split-Path -Parent $javaExecutable.FullName)
+$env:Path = (Join-Path $env:JAVA_HOME 'bin') + [IO.Path]::PathSeparator + $env:Path
+
+$commandLineArchive = Join-Path $downloadsRoot 'android-commandlinetools.zip'
+Get-Download -Uri 'https://edgedl.me.gvt1.com/android/repository/commandlinetools-win-15859902_latest.zip' -Destination $commandLineArchive -ExpectedSha256 '90ae805d20434428bffcb699c290860f19bb5f66a67e6b330067e3de801fb04a'
+
+$sdkManager = Join-Path $androidSdkRoot 'cmdline-tools\latest\bin\sdkmanager.bat'
+if (-not (Test-Path -LiteralPath $sdkManager)) {
+    $commandLineExtractRoot = Join-Path $toolsRoot 'android-commandlinetools-extracted'
+    Expand-Archive -LiteralPath $commandLineArchive -DestinationPath $commandLineExtractRoot
+    $latestRoot = Split-Path -Parent (Split-Path -Parent $sdkManager)
+    New-Item -ItemType Directory -Path $latestRoot -Force | Out-Null
+    Copy-Item -Path (Join-Path $commandLineExtractRoot 'cmdline-tools\*') -Destination $latestRoot -Recurse -Force
+}
+
+$env:ANDROID_HOME = $androidSdkRoot
+$env:ANDROID_SDK_ROOT = $androidSdkRoot
+$env:SDK_TEST_BASE_URL = 'https://edgedl.me.gvt1.com/android/repository/'
+
+$licenseAnswers = 1..50 | ForEach-Object { 'y' }
+$licenseAnswers | & $sdkManager --sdk_root=$androidSdkRoot --licenses | Out-Host
+& $sdkManager --sdk_root=$androidSdkRoot 'platforms;android-35' 'build-tools;35.0.0' 'platform-tools'
+if ($LASTEXITCODE -ne 0) {
+    throw "sdkmanager failed with exit code $LASTEXITCODE"
+}
+
+$sdkPropertyPath = ($androidSdkRoot -replace '\\', '/')
+[IO.File]::WriteAllText(
+    (Join-Path $projectRoot 'local.properties'),
+    "sdk.dir=$sdkPropertyPath`n",
+    [Text.UTF8Encoding]::new($false)
+)
+
+$gradleArchive = Join-Path $downloadsRoot 'gradle-8.9-bin.zip'
+Get-Download -Uri 'https://services.gradle.org/distributions/gradle-8.9-bin.zip' -Destination $gradleArchive -ExpectedSha256 'd725d707bfabd4dfdc958c624003b3c80accc03f7037b5122c4b1d0ef15cecab'
+
+if (-not (Test-Path -LiteralPath (Join-Path $gradleRoot 'bin\gradle.bat'))) {
+    $gradleExtractParent = Join-Path $toolsRoot 'gradle-extracted'
+    Expand-Archive -LiteralPath $gradleArchive -DestinationPath $gradleExtractParent
+    New-Item -ItemType Directory -Path $gradleRoot -Force | Out-Null
+    Copy-Item -Path (Join-Path $gradleExtractParent 'gradle-8.9\*') -Destination $gradleRoot -Recurse -Force
+}
+
+if (-not (Test-Path -LiteralPath (Join-Path $projectRoot 'gradlew.bat'))) {
+    & (Join-Path $gradleRoot 'bin\gradle.bat') -p $projectRoot --no-daemon wrapper --gradle-version 8.9
+    if ($LASTEXITCODE -ne 0) {
+        throw "Gradle wrapper generation failed with exit code $LASTEXITCODE"
+    }
+}
+
+Write-Host "JAVA_HOME=$env:JAVA_HOME"
+Write-Host "ANDROID_SDK_ROOT=$env:ANDROID_SDK_ROOT"
+Write-Host 'Android build environment is ready.'

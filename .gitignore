@@ -1,0 +1,24 @@
+.gradle/
+.tools/
+.worktrees/
+.superpowers/
+local.properties
+**/build/
+*.iml
+.idea/
+__pycache__/
+*.pyc
+
+# Local credentials; already tracked files require separate review.
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.pem
+*.key
+.env
+.env.*
+keystore.properties
+signing.properties
+/dist/*.apk
+/dist/*.sha256
