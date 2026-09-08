@@ -69,7 +69,7 @@ py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 
 `bootstrap-android.ps1` 把构建工具下载到被 Git 忽略的项目本地 `.tools` 目录，不修改系统级安装；需要可访问下载源。Python 需另行安装，引导脚本不安装 Python。
 
-[构建工作流](.github/workflows/build.yml) 运行单元测试、构建与 APK 校验。校验检查模块入口、Xposed 元数据、未声明权限及未打包编译用桩；它不是完整安全审计，也不能代替真机测试。GitHub 托管构建仍待仓库创建后首次运行验证。
+[构建工作流](.github/workflows/build.yml) 运行单元测试、构建与 APK 校验。校验检查模块入口、Xposed 元数据、未声明权限及未打包编译用桩；它不是完整安全审计，也不能代替真机测试。首次 GitHub Actions 构建已验证通过，后续仍应以每次提交的工作流结果为准。
 
 ## 已知边界与反馈
 
