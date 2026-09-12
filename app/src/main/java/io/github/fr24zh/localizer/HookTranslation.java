@@ -166,16 +166,23 @@ final class HookTranslation {
         return translateResourceCall(resourceEntryName, value, callArguments);
     }
 
+    static boolean needsSelectedContextStack(
+            String resourceEntryName,
+            Object value,
+            Object[] callArguments) {
+        return "selected".equals(resourceEntryName)
+                && "%d selected".equals(value)
+                && callArguments != null
+                && callArguments.length == 1
+                && callArguments[0] instanceof Integer
+                && ((Integer) callArguments[0]) >= 0;
+    }
+
     private static Object translateSelectedResource(
             Object value,
             Object[] callArguments,
             StackTraceElement[] stackTrace) {
-        if (!(value instanceof String)
-                || !"%d selected".equals(value)
-                || callArguments == null
-                || callArguments.length != 1
-                || !(callArguments[0] instanceof Integer)
-                || ((Integer) callArguments[0]) < 0
+        if (!needsSelectedContextStack("selected", value, callArguments)
                 || stackTrace == null
                 || stackTrace.length == 0) {
             return value;

@@ -16,15 +16,6 @@ import de.robv.android.xposed.callbacks.XC_LoadPackage;
 
 public final class Fr24LocalizationModule implements IXposedHookLoadPackage {
     private static final String LOG_PREFIX = "FR24ZH: ";
-    private static final ResourceHookDiagnostics RESOURCE_HOOK_DIAGNOSTICS =
-            new ResourceHookDiagnostics(64);
-    private static final ResourceDiagnosticSink RESOURCE_DIAGNOSTIC_SINK =
-            new ResourceDiagnosticSink(new ResourceDiagnosticSink.Writer() {
-                @Override
-                public void write(String record) {
-                    XposedBridge.log(record);
-                }
-            });
     private static final AccessibilityNodeHookArguments.Translator
             MAP_ACCESSIBILITY_TRANSLATOR =
             new AccessibilityNodeHookArguments.Translator() {
@@ -107,18 +98,9 @@ public final class Fr24LocalizationModule implements IXposedHookLoadPackage {
                     Resources.class,
                     methodName,
                     createResourceCallback(methodName));
-            logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.installation(
-                    methodName,
-                    hooks == null ? 0 : hooks.size()));
+            XposedBridge.log(LOG_PREFIX + "resource hook installed method="
+                    + methodName + " hookCount=" + (hooks == null ? 0 : hooks.size()));
         } catch (Throwable error) {
-            logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                    methodName,
-                    null,
-                    null,
-                    null,
-                    false,
-                    false,
-                    "install_failed"));
             logInstallFailure("resource hook " + methodName, error);
         }
     }
@@ -128,29 +110,11 @@ public final class Fr24LocalizationModule implements IXposedHookLoadPackage {
             @Override
             protected void afterHookedMethod(MethodHookParam param) {
                 Integer resourceId = HookArguments.resourceId(param.args);
-                Object original = null;
                 try {
-                    original = param.getResult();
                     if (resourceId == null) {
-                        logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                                methodName,
-                                null,
-                                null,
-                                original,
-                                false,
-                                false,
-                                "invalid_resource_id"));
                         return;
                     }
                     if (!(param.thisObject instanceof Resources)) {
-                        logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                                methodName,
-                                resourceId,
-                                null,
-                                original,
-                                false,
-                                false,
-                                "not_resources"));
                         return;
                     }
                     String resourceName;
@@ -158,28 +122,13 @@ public final class Fr24LocalizationModule implements IXposedHookLoadPackage {
                         resourceName = ((Resources) param.thisObject)
                                 .getResourceEntryName(resourceId);
                     } catch (Throwable ignored) {
-                        logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                                methodName,
-                                resourceId,
-                                null,
-                                original,
-                                false,
-                                false,
-                                "entry_name_unresolved"));
                         return;
                     }
+                    Object original = param.getResult();
                     boolean stringArrayMethod = "getStringArray".equals(methodName);
                     if (stringArrayMethod
                             ? !(original instanceof String[])
                             : !(original instanceof String)) {
-                        logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                                methodName,
-                                resourceId,
-                                resourceName,
-                                original,
-                                false,
-                                false,
-                                stringArrayMethod ? "result_not_string_array" : "result_not_string"));
                         return;
                     }
                     Object translated;
@@ -193,7 +142,8 @@ public final class Fr24LocalizationModule implements IXposedHookLoadPackage {
                                 resourceName,
                                 original,
                                 param.args);
-                    } else if ("selected".equals(resourceName)) {
+                    } else if (HookTranslation.needsSelectedContextStack(
+                            resourceName, original, param.args)) {
                         translated = HookTranslation.translateResourceCall(
                                 resourceName,
                                 original,
@@ -205,36 +155,11 @@ public final class Fr24LocalizationModule implements IXposedHookLoadPackage {
                                 original,
                                 param.args);
                     }
-                    boolean dictionaryHit = !original.equals(translated);
-                    if (!dictionaryHit) {
-                        logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                                methodName,
-                                resourceId,
-                                resourceName,
-                                original,
-                                false,
-                                false,
-                                "dictionary_miss"));
-                        return;
+                    if (!original.equals(translated)) {
+                        param.setResult(translated);
                     }
-                    param.setResult(translated);
-                    logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                            methodName,
-                            resourceId,
-                            resourceName,
-                            original,
-                            true,
-                            true,
-                            "applied"));
                 } catch (Throwable ignored) {
-                    logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                            methodName,
-                            resourceId,
-                            null,
-                            original,
-                            false,
-                            false,
-                            "callback_error"));
+                    // Keep the original result.
                 }
             }
         };
@@ -247,113 +172,50 @@ public final class Fr24LocalizationModule implements IXposedHookLoadPackage {
     }
 
     private static void installTypedArrayHook(final String methodName) {
-        String diagnosticMethod = "typedArray." + methodName;
         try {
             Set<XC_MethodHook.Unhook> hooks = XposedBridge.hookAllMethods(
                     TypedArray.class,
                     methodName,
-                    createTypedArrayCallback(methodName, diagnosticMethod));
-            logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.installation(
-                    diagnosticMethod,
-                    hooks == null ? 0 : hooks.size()));
+                    createTypedArrayCallback(methodName));
+            XposedBridge.log(LOG_PREFIX + "TypedArray hook installed method="
+                    + methodName + " hookCount=" + (hooks == null ? 0 : hooks.size()));
         } catch (Throwable error) {
-            logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                    diagnosticMethod,
-                    null,
-                    null,
-                    null,
-                    false,
-                    false,
-                    "install_failed"));
             logInstallFailure("TypedArray hook " + methodName, error);
         }
     }
 
-    private static XC_MethodHook createTypedArrayCallback(
-            final String methodName,
-            final String diagnosticMethod) {
+    private static XC_MethodHook createTypedArrayCallback(final String methodName) {
         return new XC_MethodHook() {
             @Override
             protected void afterHookedMethod(MethodHookParam param) {
                 Integer index = HookArguments.typedArrayIndex(param.args);
-                Integer resourceId = null;
-                Object original = null;
                 try {
-                    original = param.getResult();
                     if (index == null) {
-                        logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                                diagnosticMethod,
-                                null,
-                                null,
-                                original,
-                                false,
-                                false,
-                                "invalid_index"));
                         return;
                     }
                     if (!(param.thisObject instanceof TypedArray)) {
-                        logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                                diagnosticMethod,
-                                null,
-                                null,
-                                original,
-                                false,
-                                false,
-                                "not_typed_array"));
                         return;
                     }
                     TypedArray typedArray = (TypedArray) param.thisObject;
                     int resolvedResourceId = typedArray.getResourceId(index, 0);
                     if (resolvedResourceId == 0) {
-                        logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                                diagnosticMethod,
-                                null,
-                                null,
-                                original,
-                                false,
-                                false,
-                                "inline_literal"));
                         return;
                     }
-                    resourceId = resolvedResourceId;
                     Resources resources = typedArray.getResources();
                     if (resources == null) {
-                        logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                                diagnosticMethod,
-                                resourceId,
-                                null,
-                                original,
-                                false,
-                                false,
-                                "resources_unavailable"));
                         return;
                     }
                     String resourceName;
                     try {
-                        resourceName = resources.getResourceEntryName(resourceId);
+                        resourceName = resources.getResourceEntryName(resolvedResourceId);
                     } catch (Throwable ignored) {
-                        logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                                diagnosticMethod,
-                                resourceId,
-                                null,
-                                original,
-                                false,
-                                false,
-                                "entry_name_unresolved"));
                         return;
                     }
+                    Object original = param.getResult();
                     boolean textArrayMethod = "getTextArray".equals(methodName);
                     if (textArrayMethod
                             ? !(original instanceof CharSequence[])
                             : !(original instanceof String)) {
-                        logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                                diagnosticMethod,
-                                resourceId,
-                                resourceName,
-                                original,
-                                false,
-                                false,
-                                textArrayMethod ? "result_not_text_array" : "result_not_string"));
                         return;
                     }
                     Object translated = textArrayMethod
@@ -364,49 +226,14 @@ public final class Fr24LocalizationModule implements IXposedHookLoadPackage {
                             : HookTranslation.translateRawResourceResult(
                                     resourceName,
                                     original);
-                    if (original.equals(translated)) {
-                        logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                                diagnosticMethod,
-                                resourceId,
-                                resourceName,
-                                original,
-                                false,
-                                false,
-                                "dictionary_miss"));
-                        return;
+                    if (!original.equals(translated)) {
+                        param.setResult(translated);
                     }
-                    param.setResult(translated);
-                    logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                            diagnosticMethod,
-                            resourceId,
-                            resourceName,
-                            original,
-                            true,
-                            true,
-                            "applied"));
                 } catch (Throwable ignored) {
-                    logResourceDiagnostic(RESOURCE_HOOK_DIAGNOSTICS.callback(
-                            diagnosticMethod,
-                            resourceId,
-                            null,
-                            original,
-                            false,
-                            false,
-                            "callback_error"));
+                    // Keep the original result.
                 }
             }
         };
-    }
-
-    private static void logResourceDiagnostic(String message) {
-        if (message == null) {
-            return;
-        }
-        try {
-            RESOURCE_DIAGNOSTIC_SINK.emit(message);
-        } catch (Throwable ignored) {
-            // Logging must never alter FR24's resource result.
-        }
     }
 
     private static void installTextHook(XC_MethodHook callback) {

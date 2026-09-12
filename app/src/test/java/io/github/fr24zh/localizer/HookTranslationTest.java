@@ -9,13 +9,29 @@ import java.util.Map;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 public final class HookTranslationTest {
+    @Test
+    public void selectedContextStackIsNeededOnlyForExactCandidateCall() {
+        assertTrue(HookTranslation.needsSelectedContextStack(
+                "selected", "%d selected", new Object[]{0x7f140321}));
+        assertFalse(HookTranslation.needsSelectedContextStack(
+                "other", "%d selected", new Object[]{0x7f140321}));
+        assertFalse(HookTranslation.needsSelectedContextStack(
+                "selected", "Selected", new Object[]{0x7f140321}));
+        assertFalse(HookTranslation.needsSelectedContextStack(
+                "selected", "%d selected", new Object[]{-1}));
+        assertFalse(HookTranslation.needsSelectedContextStack(
+                "selected", "%d selected", new Object[]{0x7f140321, 2}));
+    }
+
     @Test
     public void languageSuffixIsRemovedOnlyFromItsExactSettingsLabel() {
         assertEquals("语言", HookTranslation.translateTextArgument(
