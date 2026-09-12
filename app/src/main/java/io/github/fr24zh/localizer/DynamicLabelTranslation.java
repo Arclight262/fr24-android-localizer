@@ -33,7 +33,7 @@ final class DynamicLabelTranslation {
             return value;
         }
         String source = (String) value;
-        Object translated = translate(FLIGHT, "航班：", source);
+        Object translated = translateFlightDescription(source);
         if (translated != source) {
             return translated;
         }
@@ -42,6 +42,13 @@ final class DynamicLabelTranslation {
             return translated;
         }
         return translate(AIRCRAFT, "机型：", source);
+    }
+
+    static Object translateFlightDescription(Object value) {
+        if (!(value instanceof String)) {
+            return value;
+        }
+        return translate(FLIGHT, "航班：", (String) value);
     }
 
     private static Object translate(Pattern pattern, String prefix, String source) {

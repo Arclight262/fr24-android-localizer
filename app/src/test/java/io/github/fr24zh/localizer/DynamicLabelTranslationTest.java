@@ -10,6 +10,14 @@ import org.junit.Test;
 
 public final class DynamicLabelTranslationTest {
     @Test
+    public void translatesMapFlightDescriptionsThroughTheSharedEntryPoint() {
+        assertEquals("航班：HBH8040",
+                DynamicLabelTranslation.translateFlightDescription("Flight: HBH8040"));
+        String nearMiss = "Flight: HBH 8040";
+        assertSame(nearMiss, DynamicLabelTranslation.translateFlightDescription(nearMiss));
+    }
+
+    @Test
     public void translatesOnlyTheFourAuditedPlainStringShapes() {
         assertEquals(
                 "最近的 B-1971 航班",

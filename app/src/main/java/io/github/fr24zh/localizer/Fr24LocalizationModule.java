@@ -21,7 +21,7 @@ public final class Fr24LocalizationModule implements IXposedHookLoadPackage {
             new AccessibilityNodeHookArguments.Translator() {
                 @Override
                 public Object translate(Object value) {
-                    return MapAccessibilityTranslation.translate(value);
+                    return DynamicLabelTranslation.translateFlightDescription(value);
                 }
             };
     private static final AtomicBoolean INSTALLED = new AtomicBoolean(false);
