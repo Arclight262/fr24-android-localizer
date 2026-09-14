@@ -17,15 +17,18 @@
 
 ## 설치
 
-1. 소스에서 테스트 APK를 빌드하거나 GitHub Actions 빌드가 성공한 뒤 워크플로 아티팩트를 다운로드합니다. 현재 안정 릴리스는 없습니다. 일반 Android APK이므로 Magisk/SukiSU 모듈 화면에서 플래시하지 마십시오.
-2. Vector 또는 호환되는 LSPosed 관리자를 열고 **모듈**로 이동합니다.
-3. `FR24 简体中文测试模块` 모듈을 활성화합니다.
-4. 모듈 범위에는 Flightradar24만 선택합니다. 패키지 이름은 `com.flightradar24free`여야 합니다.
-5. Flightradar24를 강제 종료한 뒤 다시 실행합니다.
+1. APK는 먼저 [GitHub Releases](https://github.com/Arclight262/fr24-android-localizer/releases)에서 받으십시오. 임시 테스트 빌드가 필요하면 필요한 커밋과 일치하는 성공한 [GitHub Actions 실행](https://github.com/Arclight262/fr24-android-localizer/actions)을 사용하십시오. 일반 Android APK이므로 Magisk/SukiSU 모듈 화면에서 플래시하지 마십시오.
+2. Actions 아티팩트를 받았다면 압축을 풀어 APK를 꺼냅니다.
+3. Xposed 관리자를 열기 전에 Android 패키지 설치 프로그램으로 APK를 설치합니다.
+4. Vector 또는 호환되는 LSPosed 관리자를 열고 **모듈**로 이동합니다.
+5. `FR24 中文化（非官方测试）` 모듈을 활성화합니다.
+6. 모듈 범위에는 Flightradar24(`com.flightradar24free`)만 선택한 뒤 강제 종료하고 다시 실행합니다.
+
+각 CI 아티팩트에는 버전이 포함된 APK, `SHA256SUMS.txt`, `BUILD_INFO.txt`가 들어 있습니다. APK 체크섬과 `BUILD_INFO.txt`의 커밋을 다운로드한 페이지에 표시된 버전 및 커밋과 비교하십시오. Actions 아티팩트는 Android 디버그 인증서로 서명된 임시 테스트 빌드입니다.
 
 이 모듈에는 런처 아이콘이나 설정 화면이 없습니다. 이는 정상입니다.
 
-테스트 패키지는 Android 디버그 인증서로 서명됩니다. 로컬과 CI의 인증서가 다를 수 있고 CI 실행마다 같은 인증서를 사용한다는 보장도 없으므로 덮어쓰기 설치가 실패할 수 있습니다. 서명 충돌이 발생해도 FR24를 제거하지 마십시오. 현지화 모듈만 제거한 뒤 새 버전을 설치하고 범위를 다시 확인하면 됩니다. 안정 릴리스 전에 고정된 서명 방식을 정해야 하며 비공개 키를 저장소에 커밋해서는 안 됩니다.
+테스트 패키지는 Android 디버그 인증서로 서명됩니다. 로컬과 CI의 인증서가 다를 수 있고 CI 실행마다 같은 인증서를 사용한다는 보장도 없으므로 덮어쓰기 설치가 실패할 수 있습니다. 서명 충돌이 발생해도 FR24를 제거하지 마십시오. 현지화 모듈만 제거한 뒤 새 버전을 설치하고 범위를 다시 확인하면 됩니다. 안정적인 서명 업그레이드 경로를 가정하지 마십시오. 비공개 키를 저장소에 커밋해서는 안 됩니다.
 
 ## 작동 여부 확인
 
@@ -86,7 +89,7 @@ py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
    | [`SettingsArrayTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/SettingsArrayTranslation.java) | 설정 화면의 배열 옵션 |
    | [`DynamicLabelTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/DynamicLabelTranslation.java) | 항공편, 호출 부호, 항공기 유형 등의 동적 레이블 |
    | [`FlightDetailViewTextTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/FlightDetailViewTextTranslation.java) | 항공편 상세 정보의 범위가 제한된 동적 텍스트 |
-   | [`MapAccessibilityTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/MapAccessibilityTranslation.java) | 지도 접근성 설명 |
+   | [`Fr24LocalizationModule.java`](app/src/main/java/io/github/fr24zh/localizer/Fr24LocalizationModule.java) | 지도 접근성 설명 Hook |
    | [`HookTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/HookTranslation.java) | 복수형, 수량, 특수 형식 텍스트 및 템플릿 안전 검사 |
 
 2. [`ResourceTranslationDictionary.java`](app/src/main/java/io/github/fr24zh/localizer/ResourceTranslationDictionary.java)에서 형식 지정에 사용되는 `Locale.SIMPLIFIED_CHINESE`를 대상 언어 로캘로 바꿉니다. 테스트 코드의 같은 로캘도 함께 수정해야 합니다. 저장소 전체를 기계적으로 치환해서는 안 됩니다. 대상 언어의 복수형, 어순, 날짜 형식에는 별도 구현이 필요할 수 있습니다.

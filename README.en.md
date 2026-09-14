@@ -17,15 +17,18 @@ Other framework forks, Android versions, and Flightradar24 versions have not yet
 
 ## Installation
 
-1. Build the test APK from source, or download the workflow artifact after a successful GitHub Actions build. No stable release is currently available. This is a regular Android APK; do not flash it from the Magisk/SukiSU modules page.
-2. Open Vector or a compatible LSPosed manager and go to **Modules**.
-3. Enable the module named `FR24 简体中文测试模块`.
-4. Select only Flightradar24 for the module scope. Its package name must be `com.flightradar24free`.
-5. Force-stop Flightradar24, then open it again.
+1. Get the APK from [GitHub Releases](https://github.com/Arclight262/fr24-android-localizer/releases) first, or use the matching successful [GitHub Actions run](https://github.com/Arclight262/fr24-android-localizer/actions) for a temporary test build. This is a regular Android APK; do not flash it from the Magisk/SukiSU modules page.
+2. If you download an Actions artifact, extract it and take out the APK.
+3. Install the APK with Android's package installer before opening the Xposed manager.
+4. Open Vector or a compatible LSPosed manager and go to **Modules**.
+5. Enable the module named `FR24 中文化（非官方测试）`.
+6. Select only Flightradar24 for the module scope (`com.flightradar24free`), then force-stop and reopen it.
+
+Each CI artifact contains a versioned APK, `SHA256SUMS.txt`, and `BUILD_INFO.txt`. Compare the APK checksum and the commit in `BUILD_INFO.txt` with the version and commit shown on the page you downloaded from. Actions artifacts are temporary test builds signed with the Android debug certificate.
 
 The module has no launcher icon or settings screen. This is expected.
 
-Test builds are signed with an Android debug certificate. Local and CI certificates may differ, and even separate CI runs are not guaranteed to use the same certificate, so an in-place update may fail. If a signature conflict occurs, do not uninstall FR24. Uninstall only the localization module, install the new build, and check the scope again. A fixed signing scheme must be established before a stable release, and the private key must never be committed to the repository.
+Test builds are signed with an Android debug certificate. Local and CI certificates may differ, and even separate CI runs are not guaranteed to use the same certificate, so an in-place update may fail. If a signature conflict occurs, do not uninstall FR24. Uninstall only the localization module, install the new build, and check the scope again. Do not assume a stable signing upgrade path; the private key must never be committed to the repository.
 
 ## How to verify that it works
 
@@ -86,7 +89,7 @@ The current source compiles the Simplified Chinese translations directly into th
    | [`SettingsArrayTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/SettingsArrayTranslation.java) | Settings-page array options |
    | [`DynamicLabelTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/DynamicLabelTranslation.java) | Dynamic labels for flights, call signs, and aircraft types |
    | [`FlightDetailViewTextTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/FlightDetailViewTextTranslation.java) | Constrained dynamic text in flight details |
-   | [`MapAccessibilityTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/MapAccessibilityTranslation.java) | Map accessibility descriptions |
+   | [`Fr24LocalizationModule.java`](app/src/main/java/io/github/fr24zh/localizer/Fr24LocalizationModule.java) | Map accessibility-description hook |
    | [`HookTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/HookTranslation.java) | Plural, quantity, and special-format text, plus template safety checks |
 
 2. In [`ResourceTranslationDictionary.java`](app/src/main/java/io/github/fr24zh/localizer/ResourceTranslationDictionary.java), replace the `Locale.SIMPLIFIED_CHINESE` used for formatting with the target locale. Update the same locale in the tests. Do not perform a blind repository-wide replacement: plural rules, word order, and date formats may require language-specific implementations.

@@ -4,7 +4,6 @@ $projectRoot = Split-Path -Parent $PSScriptRoot
 $toolsRoot = Join-Path $projectRoot '.tools'
 $downloadsRoot = Join-Path $toolsRoot 'downloads'
 $jdkExtractRoot = Join-Path $toolsRoot 'jdk-17'
-$gradleRoot = Join-Path $toolsRoot 'gradle-8.9'
 $androidSdkRoot = Join-Path $toolsRoot 'android-sdk'
 
 New-Item -ItemType Directory -Path $downloadsRoot -Force | Out-Null
@@ -51,8 +50,11 @@ function Get-Download {
     Move-Item -LiteralPath $partialDestination -Destination $Destination
 }
 
-$jdkArchive = Join-Path $downloadsRoot 'temurin-jdk17.zip'
-Get-Download -Uri 'https://api.adoptium.net/v3/binary/latest/17/ga/windows/x64/jdk/hotspot/normal/eclipse' -Destination $jdkArchive
+$jdkArchive = Join-Path $downloadsRoot 'OpenJDK17U-jdk_x64_windows_hotspot_17.0.20_8.zip'
+Get-Download `
+    -Uri 'https://github.com/adoptium/temurin17-binaries/releases/download/jdk-17.0.20%2B8/OpenJDK17U-jdk_x64_windows_hotspot_17.0.20_8.zip' `
+    -Destination $jdkArchive `
+    -ExpectedSha256 '418497BE5CF585BDD2203D6486A565D66D3F5E992D5630D45104CB873FAB8122'
 
 if (-not (Test-Path -LiteralPath $jdkExtractRoot)) {
     Expand-Archive -LiteralPath $jdkArchive -DestinationPath $jdkExtractRoot
@@ -96,23 +98,6 @@ $sdkPropertyPath = ($androidSdkRoot -replace '\\', '/')
     "sdk.dir=$sdkPropertyPath`n",
     [Text.UTF8Encoding]::new($false)
 )
-
-$gradleArchive = Join-Path $downloadsRoot 'gradle-8.9-bin.zip'
-Get-Download -Uri 'https://services.gradle.org/distributions/gradle-8.9-bin.zip' -Destination $gradleArchive -ExpectedSha256 'd725d707bfabd4dfdc958c624003b3c80accc03f7037b5122c4b1d0ef15cecab'
-
-if (-not (Test-Path -LiteralPath (Join-Path $gradleRoot 'bin\gradle.bat'))) {
-    $gradleExtractParent = Join-Path $toolsRoot 'gradle-extracted'
-    Expand-Archive -LiteralPath $gradleArchive -DestinationPath $gradleExtractParent
-    New-Item -ItemType Directory -Path $gradleRoot -Force | Out-Null
-    Copy-Item -Path (Join-Path $gradleExtractParent 'gradle-8.9\*') -Destination $gradleRoot -Recurse -Force
-}
-
-if (-not (Test-Path -LiteralPath (Join-Path $projectRoot 'gradlew.bat'))) {
-    & (Join-Path $gradleRoot 'bin\gradle.bat') -p $projectRoot --no-daemon wrapper --gradle-version 8.9
-    if ($LASTEXITCODE -ne 0) {
-        throw "Gradle wrapper generation failed with exit code $LASTEXITCODE"
-    }
-}
 
 Write-Host "JAVA_HOME=$env:JAVA_HOME"
 Write-Host "ANDROID_SDK_ROOT=$env:ANDROID_SDK_ROOT"

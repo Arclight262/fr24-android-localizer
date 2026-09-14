@@ -17,15 +17,18 @@
 
 ## 安装
 
-1. 从源码构建测试 APK，或在 GitHub Actions 构建成功后下载工作流产物。当前尚未发布稳定版。这是普通 Android APK，不要在 Magisk/SukiSU 的模块页面中刷入。
-2. 打开 Vector 或兼容的 LSPosed 管理器，进入“模块”。
-3. 启用“FR24 简体中文测试模块”。
-4. 模块作用域只勾选 Flightradar24，包名应为 `com.flightradar24free`。
-5. 强行停止 Flightradar24，然后重新打开。
+1. 优先从 [GitHub Releases](https://github.com/Arclight262/fr24-android-localizer/releases) 获取 APK；也可从与所需提交匹配的成功 [GitHub Actions 运行](https://github.com/Arclight262/fr24-android-localizer/actions) 获取临时测试包。这是普通 Android APK，不要在 Magisk/SukiSU 的模块页面中刷入。
+2. 若下载的是 Actions 产物，先解压该产物并取出 APK。
+3. 使用 Android 套件安装程序安装 APK，再打开 Vector 或兼容的 LSPosed 管理器。
+4. 在管理器中进入“模块”。
+5. 启用 `FR24 中文化（非官方测试）`。
+6. 模块作用域只勾选 Flightradar24（`com.flightradar24free`），然后强行停止并重新打开它。
+
+每个 CI 产物均包含带版本号的 APK、`SHA256SUMS.txt` 和 `BUILD_INFO.txt`。请将 APK 的校验和以及 `BUILD_INFO.txt` 中的提交与下载页面对应的版本和提交进行核对。Actions 产物是使用 Android 调试签名的临时测试包。
 
 模块本身没有启动图标，也没有设置界面，这是正常现象。
 
-测试包使用 Android 调试证书签名。本地与 CI 的证书可能不同，不同 CI 运行也不保证使用同一证书，因此不保证能够覆盖安装。发生签名冲突时不要卸载 FR24；可以卸载汉化模块后安装新版并重新检查作用域。正式发布前需确定固定签名方案，私钥不得提交仓库。
+测试包使用 Android 调试证书签名。本地与 CI 的证书可能不同，不同 CI 运行也不保证使用同一证书，因此不保证能够覆盖安装。发生签名冲突时不要卸载 FR24；可以卸载汉化模块后安装新版并重新检查作用域。不得假定可稳定签名升级，私钥不得提交仓库。
 
 ## 如何判断是否生效
 
@@ -86,7 +89,7 @@ py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
    | [`SettingsArrayTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/SettingsArrayTranslation.java) | 设置页数组选项 |
    | [`DynamicLabelTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/DynamicLabelTranslation.java) | 航班、呼号和机型等动态标签 |
    | [`FlightDetailViewTextTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/FlightDetailViewTextTranslation.java) | 航班详情中的受约束动态文本 |
-   | [`MapAccessibilityTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/MapAccessibilityTranslation.java) | 地图无障碍描述文本 |
+   | [`Fr24LocalizationModule.java`](app/src/main/java/io/github/fr24zh/localizer/Fr24LocalizationModule.java) | 地图无障碍描述文本 Hook |
    | [`HookTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/HookTranslation.java) | 复数、数量和特殊格式文本，以及模板安全检查 |
 
 2. 把 [`ResourceTranslationDictionary.java`](app/src/main/java/io/github/fr24zh/localizer/ResourceTranslationDictionary.java) 中用于格式化的 `Locale.SIMPLIFIED_CHINESE` 改为目标语言区域。测试代码中的相同区域设置也要同步调整。不要仅做全仓库机械替换：目标语言的单复数、词序和日期格式可能需要单独实现。

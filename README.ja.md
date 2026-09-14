@@ -17,15 +17,18 @@
 
 ## インストール
 
-1. ソースからテスト APK をビルドするか、GitHub Actions のビルド成功後にワークフロー成果物をダウンロードします。現在、安定版は公開されていません。これは通常の Android APK です。Magisk/SukiSU のモジュール画面からフラッシュしないでください。
-2. Vector または互換性のある LSPosed マネージャーを開き、「モジュール」に移動します。
-3. `FR24 简体中文测试模块` という名前のモジュールを有効にします。
-4. モジュールのスコープでは Flightradar24 のみを選択します。パッケージ名は `com.flightradar24free` です。
-5. Flightradar24 を強制停止し、再度起動します。
+1. APK はまず [GitHub Releases](https://github.com/Arclight262/fr24-android-localizer/releases) から入手します。暫定テストビルドが必要な場合は、必要なコミットと一致する成功済みの [GitHub Actions 実行](https://github.com/Arclight262/fr24-android-localizer/actions) を使用します。これは通常の Android APK です。Magisk/SukiSU のモジュール画面からフラッシュしないでください。
+2. Actions の成果物をダウンロードした場合は、展開して APK を取り出します。
+3. Xposed マネージャーを開く前に、Android のパッケージインストーラーで APK をインストールします。
+4. Vector または互換性のある LSPosed マネージャーを開き、「モジュール」に移動します。
+5. `FR24 中文化（非官方测试）` という名前のモジュールを有効にします。
+6. モジュールのスコープでは Flightradar24（`com.flightradar24free`）のみを選択し、強制停止してから再度起動します。
+
+各 CI 成果物には、バージョン付き APK、`SHA256SUMS.txt`、`BUILD_INFO.txt` が含まれます。APK のチェックサムと `BUILD_INFO.txt` のコミットを、ダウンロードしたページに表示されたバージョンおよびコミットと照合してください。Actions の成果物は Android のデバッグ証明書で署名された暫定テストビルドです。
 
 このモジュールにはランチャーアイコンや設定画面がありません。これは正常な動作です。
 
-テスト APK は Android のデバッグ証明書で署名されています。ローカルと CI では証明書が異なる場合があり、CI の実行ごとに同じ証明書が使われる保証もないため、上書きインストールできないことがあります。署名が競合した場合も FR24 はアンインストールしないでください。ローカライズモジュールだけをアンインストールして新版を導入し、スコープを再確認してください。安定版を公開する前に固定の署名方式を決定し、秘密鍵はリポジトリへコミットしないでください。
+テスト APK は Android のデバッグ証明書で署名されています。ローカルと CI では証明書が異なる場合があり、CI の実行ごとに同じ証明書が使われる保証もないため、上書きインストールできないことがあります。署名が競合した場合も FR24 はアンインストールしないでください。ローカライズモジュールだけをアンインストールして新版を導入し、スコープを再確認してください。安定した署名アップグレードパスがあるとは想定しないでください。秘密鍵はリポジトリへコミットしないでください。
 
 ## 動作確認
 
@@ -86,7 +89,7 @@ py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
    | [`SettingsArrayTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/SettingsArrayTranslation.java) | 設定画面の配列選択肢 |
    | [`DynamicLabelTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/DynamicLabelTranslation.java) | フライト、コールサイン、機種などの動的ラベル |
    | [`FlightDetailViewTextTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/FlightDetailViewTextTranslation.java) | フライト詳細内の対象を限定した動的テキスト |
-   | [`MapAccessibilityTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/MapAccessibilityTranslation.java) | 地図のユーザー補助用説明テキスト |
+   | [`Fr24LocalizationModule.java`](app/src/main/java/io/github/fr24zh/localizer/Fr24LocalizationModule.java) | 地図のユーザー補助用説明テキスト Hook |
    | [`HookTranslation.java`](app/src/main/java/io/github/fr24zh/localizer/HookTranslation.java) | 複数形、数量、特殊な書式のテキストとテンプレートの安全性検査 |
 
 2. [`ResourceTranslationDictionary.java`](app/src/main/java/io/github/fr24zh/localizer/ResourceTranslationDictionary.java) で書式化に使用している `Locale.SIMPLIFIED_CHINESE` を対象言語のロケールへ変更します。テストコード内の同じロケールも更新してください。リポジトリ全体を機械的に置換するだけでは不十分です。対象言語の複数形、語順、日付形式には個別の実装が必要になる場合があります。
