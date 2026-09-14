@@ -35,10 +35,12 @@
 首次測試時，可查看地圖、搜尋、航班詳情、機場詳情與設定等常見文字是否已變成中文。框架日誌中的下列內容可協助確認 Hook 是否安裝，但不能證明已完整涵蓋：
 
 ```text
-FR24ZH: resource hook installed method=getText hookCount=2
+FR24ZH: resource hook installed method=getText hookCount=<N>
 FR24ZH: text hook installed
 FR24ZH: content-description hook installed
 ```
+
+其中 N 是執行時產生的 Hook 數量，實際值可能不同。
 
 如果完全沒有翻譯，請先確認模組作用域並再次執行強制停止。若日誌顯示 Hook 已安裝但文字仍為英文，通常表示目前的 Flightradar24 版本未透過這些 Android 資源 API 提供該文字，或實際英文與字典內容並非完全一致；此時需要依據裝置日誌與畫面原文繼續調整。
 

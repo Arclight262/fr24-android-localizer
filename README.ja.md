@@ -35,10 +35,12 @@
 最初の確認では、地図、検索、フライト詳細、空港詳細、設定などの一般的な画面が中国語になっているか確認します。フレームワークのログにある次の項目は Hook の導入確認に役立ちますが、すべての画面が翻訳されたことを示すものではありません。
 
 ```text
-FR24ZH: resource hook installed method=getText hookCount=2
+FR24ZH: resource hook installed method=getText hookCount=<N>
 FR24ZH: text hook installed
 FR24ZH: content-description hook installed
 ```
+
+ここでの N は実行時に生成される Hook 数であり、実際の値は異なる場合があります。
 
 まったく翻訳されない場合は、まずモジュールのスコープを確認し、もう一度強制停止してください。ログ上では Hook が導入済みでも英語のままの場合、その Flightradar24 バージョンでは対象テキストがこれらの Android リソース API を通して提供されていないか、実際の英文が辞書と完全には一致していない可能性があります。その場合は、端末ログと画面上の原文を基に追加対応が必要です。
 

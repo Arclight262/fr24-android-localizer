@@ -35,10 +35,12 @@
 처음 확인할 때는 지도, 검색, 항공편 상세 정보, 공항 상세 정보, 설정 등의 일반 화면이 중국어로 표시되는지 확인합니다. 다음 프레임워크 로그는 Hook 설치 여부를 확인하는 데 도움이 되지만 전체 번역 범위를 보장하지는 않습니다.
 
 ```text
-FR24ZH: resource hook installed method=getText hookCount=2
+FR24ZH: resource hook installed method=getText hookCount=<N>
 FR24ZH: text hook installed
 FR24ZH: content-description hook installed
 ```
+
+여기서 N은 런타임에 생성되는 Hook 개수이므로 실제 값은 다를 수 있습니다.
 
 번역이 전혀 적용되지 않으면 먼저 모듈 범위를 확인하고 강제 종료 단계를 다시 수행하십시오. 로그에 Hook이 설치되었다고 표시되지만 텍스트가 영어로 남아 있다면 해당 Flightradar24 버전이 이 Android 리소스 API를 통해 텍스트를 제공하지 않거나 실제 영어 문구가 사전과 완전히 일치하지 않는 경우가 많습니다. 이때는 기기 로그와 화면의 원문을 기준으로 추가 대응해야 합니다.
 

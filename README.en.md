@@ -35,10 +35,12 @@ Test builds are signed with an Android debug certificate. Local and CI certifica
 For an initial check, look for Chinese text on common screens such as the map, search, flight details, airport details, and settings. The following framework log entries can help confirm that the hooks were installed, but they do not prove complete coverage:
 
 ```text
-FR24ZH: resource hook installed method=getText hookCount=2
+FR24ZH: resource hook installed method=getText hookCount=<N>
 FR24ZH: text hook installed
 FR24ZH: content-description hook installed
 ```
+
+Here, N is the hook count generated at runtime, so the actual value may differ.
 
 If nothing is translated, first check the module scope and repeat the force-stop step. If the logs show that the hooks were installed but text remains in English, that Flightradar24 version may not expose the text through these Android resource APIs, or the actual English text may not exactly match the dictionary. Device logs and the on-screen source text are then needed for further adaptation.
 
