@@ -5,7 +5,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$jdkRoot = Join-Path $projectRoot '.tools\jdk-17'
+$jdkRoot = Join-Path $projectRoot '.tools\jdk-17.0.20+8'
 $javaExecutable = Get-ChildItem -LiteralPath $jdkRoot -Filter 'java.exe' -File -Recurse |
     Where-Object { $_.FullName -match '[\\/]bin[\\/]java\.exe$' } |
     Select-Object -First 1

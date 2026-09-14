@@ -3,7 +3,7 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $toolsRoot = Join-Path $projectRoot '.tools'
 $downloadsRoot = Join-Path $toolsRoot 'downloads'
-$jdkExtractRoot = Join-Path $toolsRoot 'jdk-17'
+$jdkExtractRoot = Join-Path $toolsRoot 'jdk-17.0.20+8'
 $androidSdkRoot = Join-Path $toolsRoot 'android-sdk'
 
 New-Item -ItemType Directory -Path $downloadsRoot -Force | Out-Null
