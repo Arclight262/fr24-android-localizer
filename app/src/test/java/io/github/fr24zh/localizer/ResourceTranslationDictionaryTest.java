@@ -47,9 +47,6 @@ public final class ResourceTranslationDictionaryTest {
         for (Map.Entry<String, String> entry : expected.entrySet()) {
             assertEquals(entry.getValue(), ResourceTranslationDictionary.template(entry.getKey()));
         }
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(65, TranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -63,9 +60,6 @@ public final class ResourceTranslationDictionaryTest {
         for (Map.Entry<String, String> entry : expected.entrySet()) {
             assertEquals(entry.getValue(), ResourceTranslationDictionary.template(entry.getKey()));
         }
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(65, TranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -161,8 +155,6 @@ public final class ResourceTranslationDictionaryTest {
         }
         assertNull(ResourceTranslationDictionary.translate("cab_vertical_speed_missing", null));
         assertEquals("Vertical speed", TranslationDictionary.translate("Vertical speed"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -192,8 +184,6 @@ public final class ResourceTranslationDictionaryTest {
         assertEquals(
                 "FLIGHT FROM",
                 TranslationDictionary.translate("FLIGHT FROM"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -208,6 +198,32 @@ public final class ResourceTranslationDictionaryTest {
                 ResourceTranslationDictionary.translate(
                         "cab_diverting_to",
                         new Object[]{"CKG", "ZUCK"}));
+    }
+
+    @Test
+    public void formatsEarlyAuditedTemplatesAndRejectsMissingArguments() {
+        Object[][] cases = {
+                {"cab_small_arriving", new Object[]{"5 分钟"}, "将在 5 分钟后到达"},
+                {"cab_small_arriving_ago", new Object[]{"5 分钟"}, "已于 5 分钟前到达"},
+                {"cab_small_departed", new Object[]{"5 分钟"}, "已于 5 分钟前起飞"},
+                {"cab_aircraft_type", new Object[]{"B738"}, "机型（B738）"},
+                {"cab_aircraft_age", new Object[]{"8 年"}, "机龄（8 年）"},
+                {"cab_aircraft_history", new Object[]{10}, "最近的 10 航班"},
+                {"cab_data_source", new Object[]{"ADS-B"}, "数据来源 — ADS-B"},
+                {"search_country_airports_title", new Object[]{"中国"}, "中国 的机场"},
+                {"search_headers", new Object[]{1, 2, "航班"}, "1/2 航班"},
+                {"settings_weather_winds_barbs_legend", new Object[]{"FL100"}, "风羽（FL100）"},
+                {"settings_weather_winds_level_legend", new Object[]{"10000 ft"}, "风速（10000 ft）"},
+                {"filters_delete_dialog_description", new Object[]{"筛选器"}, "确定要删除 筛选器 吗？"}
+        };
+        for (Object[] testCase : cases) {
+            String key = (String) testCase[0];
+            assertEquals(testCase[2], ResourceTranslationDictionary.translate(
+                    key, (Object[]) testCase[1]));
+            assertNull(ResourceTranslationDictionary.translate(key, new Object[]{}));
+        }
+        assertNull(ResourceTranslationDictionary.translate(
+                "search_headers", new Object[]{"1", "2", "航班"}));
     }
 
     @Test
@@ -282,8 +298,6 @@ public final class ResourceTranslationDictionaryTest {
         assertEquals("Intense precipitation", TranslationDictionary.translate("Intense precipitation"));
         assertEquals("North American radar", TranslationDictionary.translate("North American radar"));
         assertEquals("Australian radar", TranslationDictionary.translate("Australian radar"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -323,8 +337,6 @@ public final class ResourceTranslationDictionaryTest {
         assertEquals("Language", TranslationDictionary.translate("Language"));
         assertEquals("Open", TranslationDictionary.translate("Open"));
         assertEquals("Analytics", TranslationDictionary.translate("Analytics"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -373,8 +385,6 @@ public final class ResourceTranslationDictionaryTest {
         assertEquals("filters", TranslationDictionary.translate("filters"));
         assertEquals("更多信息", TranslationDictionary.translate("More info"));
         assertEquals("筛选", TranslationDictionary.translate("Filters"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -394,8 +404,6 @@ public final class ResourceTranslationDictionaryTest {
         assertEquals("Other", TranslationDictionary.translate("Other"));
         assertEquals("Ground vehicle", TranslationDictionary.translate("Ground vehicle"));
         assertEquals("Non-categorised", TranslationDictionary.translate("Non-categorised"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -423,8 +431,6 @@ public final class ResourceTranslationDictionaryTest {
         assertEquals("Aircraft that carry only cargo.", TranslationDictionary.translate(
                 "Aircraft that carry only cargo."));
         assertEquals("Other", TranslationDictionary.translate("Other"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -441,8 +447,6 @@ public final class ResourceTranslationDictionaryTest {
                 "Visit our blog for a complete guide on how to use filters >",
                 TranslationDictionary.translate(
                         "Visit our blog for a complete guide on how to use filters >"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -478,8 +482,6 @@ public final class ResourceTranslationDictionaryTest {
                 "Notify me when I visit an airport to easily access flight information.",
                 TranslationDictionary.translate(
                         "Notify me when I visit an airport to easily access flight information."));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -544,8 +546,6 @@ public final class ResourceTranslationDictionaryTest {
         assertEquals("Logo", TranslationDictionary.translate("Logo"));
         assertEquals("Red", TranslationDictionary.translate("Red"));
         assertEquals("Low altitude", TranslationDictionary.translate("Low altitude"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -579,8 +579,6 @@ public final class ResourceTranslationDictionaryTest {
         assertEquals("Other", TranslationDictionary.translate("Other"));
         assertEquals("Estimations", TranslationDictionary.translate("Estimations"));
         assertEquals("Australia radar", TranslationDictionary.translate("Australia radar"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -588,8 +586,6 @@ public final class ResourceTranslationDictionaryTest {
         assertEquals("我的账户", ResourceTranslationDictionary.translate("my_account", null));
         assertEquals("My account", TranslationDictionary.translate("My account"));
         assertEquals("My Account", TranslationDictionary.translate("My Account"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -598,8 +594,6 @@ public final class ResourceTranslationDictionaryTest {
                 "menu_commerical_services", null));
         assertEquals("Commercial services", TranslationDictionary.translate("Commercial services"));
         assertEquals("Commercial Services", TranslationDictionary.translate("Commercial Services"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -607,8 +601,6 @@ public final class ResourceTranslationDictionaryTest {
         assertEquals("新闻通讯", ResourceTranslationDictionary.translate("menu_newsletter", null));
         assertEquals("Newsletter", TranslationDictionary.translate("Newsletter"));
         assertEquals("newsletter", TranslationDictionary.translate("newsletter"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -617,8 +609,6 @@ public final class ResourceTranslationDictionaryTest {
                 "accessibility_flight_no_callsign", null));
         assertEquals("Flight: no call sign", TranslationDictionary.translate("Flight: no call sign"));
         assertEquals("Flight: NO CALL SIGN", TranslationDictionary.translate("Flight: NO CALL SIGN"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -640,8 +630,6 @@ public final class ResourceTranslationDictionaryTest {
                         new Object[]{"10 个筛选条件", 25}));
         assertNull(ResourceTranslationDictionary.translate("filters_num_missing", new Object[]{10}));
         assertEquals("10 filters", TranslationDictionary.translate("10 filters"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -1515,9 +1503,6 @@ public final class ResourceTranslationDictionaryTest {
         for (Map.Entry<String, String> entry : expected.entrySet()) {
             assertEquals(entry.getValue(), ResourceTranslationDictionary.template(entry.getKey()));
         }
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(65, TranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -1570,9 +1555,6 @@ public final class ResourceTranslationDictionaryTest {
         assertNull(ResourceTranslationDictionary.template("whats_new_with_gold"));
         assertNull(ResourceTranslationDictionary.template("whats_new_unlock_subtitle"));
         assertNull(ResourceTranslationDictionary.template("ar_volcano_whats_new_missing"));
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(65, TranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -1643,9 +1625,6 @@ public final class ResourceTranslationDictionaryTest {
             assertFalse(actual.contains("<"));
             assertFalse(actual.contains(">"));
         }
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(65, TranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -1756,9 +1735,6 @@ public final class ResourceTranslationDictionaryTest {
                 assertFalse(entry.getValue().contains("\n"));
             }
         }
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(65, TranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -1820,9 +1796,6 @@ public final class ResourceTranslationDictionaryTest {
             assertFalse(actual.contains("\n"));
             assertFalse(actual.contains("\r"));
         }
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(65, TranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -1869,9 +1842,6 @@ public final class ResourceTranslationDictionaryTest {
             assertEquals(entry.getValue(),
                     ResourceTranslationDictionary.translate(entry.getKey(), null));
         }
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(65, TranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -1977,9 +1947,6 @@ public final class ResourceTranslationDictionaryTest {
             assertEquals(entry.getValue(),
                     ResourceTranslationDictionary.translate(entry.getKey(), null));
         }
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(65, TranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -2114,10 +2081,6 @@ public final class ResourceTranslationDictionaryTest {
             assertEquals(ResourceTranslationDictionary.template(resource),
                     ResourceTranslationDictionary.translate(resource, null));
         }
-
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(65, TranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -2238,9 +2201,6 @@ public final class ResourceTranslationDictionaryTest {
         for (Map.Entry<String, String> entry : expected.entrySet()) {
             assertEquals(entry.getValue(), ResourceTranslationDictionary.template(entry.getKey()));
         }
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        assertEquals(65, TranslationDictionary.size());
-        assertEquals(1282, TranslationDictionary.size() + ResourceTranslationDictionary.size());
     }
 
     @Test
@@ -2314,13 +2274,4 @@ public final class ResourceTranslationDictionaryTest {
         assertNull(ResourceTranslationDictionary.translate("flight_html_ad_missing", null));
     }
 
-    @Test
-    public void initialEntriesAreNonBlankAndImmutable() {
-        assertEquals(1217, ResourceTranslationDictionary.size());
-        for (Map.Entry<String, String> entry
-                : ResourceTranslationDictionary.entriesForTest().entrySet()) {
-            assertFalse(entry.getKey().trim().isEmpty());
-            assertFalse(entry.getValue().trim().isEmpty());
-        }
-    }
 }

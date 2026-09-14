@@ -163,7 +163,6 @@ public final class TranslationDictionaryTest {
         assertEquals("飞机", TranslationDictionary.translate("Aircraft"));
         assertEquals("机场", TranslationDictionary.translate("Airport"));
         assertEquals("航班", TranslationDictionary.translate("Flight"));
-        assertEquals(65, TranslationDictionary.size());
     }
 
     @Test
@@ -206,7 +205,6 @@ public final class TranslationDictionaryTest {
                 TranslationDictionary.translate(
                         "An overview of current global precipitation overlaid on our live map. "
                                 + "The total precipitation layer is refreshed 12 times a day."));
-        assertEquals(65, TranslationDictionary.size());
     }
 
     @Test
@@ -250,13 +248,10 @@ public final class TranslationDictionaryTest {
     }
 
     @Test
-    public void exactDictionaryHasAuditedSize() {
+    public void auditedDictionarySizesRemainExplicit() {
+        assertEquals(1217, ResourceTranslationDictionary.size());
         assertEquals(65, TranslationDictionary.size());
-    }
-
-    @Test
-    public void combinedCatalogTracksReviewedElevenPointNineBatch() {
-        int total = TranslationDictionary.size() + ResourceTranslationDictionary.size();
-        assertEquals(1282, total);
+        assertEquals(1282,
+                ResourceTranslationDictionary.size() + TranslationDictionary.size());
     }
 }

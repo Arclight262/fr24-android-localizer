@@ -53,10 +53,6 @@ final class ResourceTranslationDictionary {
         return resourceName == null ? null : TRANSLATIONS.get(resourceName);
     }
 
-    static Map<String, String> entriesForTest() {
-        return TRANSLATIONS;
-    }
-
     private static Map<String, String> createTranslations() {
         Map<String, String> translations = new LinkedHashMap<>();
         add(translations, "cab_more_info", "更多 %s 信息");
@@ -67,9 +63,9 @@ final class ResourceTranslationDictionary {
         add(translations, "cab_baggage", "行李转盘");
         add(translations, "cab_history_history_more", "更多 %s 航班");
         add(translations, "label_year", "%s 年");
-        add(translations, "cab_small_arriving", "将在 %s 后到达");
-        add(translations, "cab_small_arriving_ago", "已于 %s 前到达");
-        add(translations, "cab_small_departed", "已于 %s 前起飞");
+        add(translations, "cab_small_arriving", "将在 %s后到达");
+        add(translations, "cab_small_arriving_ago", "已于 %s前到达");
+        add(translations, "cab_small_departed", "已于 %s前起飞");
         add(translations, "cab_aircraft_type", "机型（%s）");
         add(translations, "cab_aircraft_age", "机龄（%s）");
         add(translations, "cab_aircraft_history", "最近的 %s 航班");

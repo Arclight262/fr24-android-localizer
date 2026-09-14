@@ -4,13 +4,6 @@ final class HookTranslation {
     private HookTranslation() {
     }
 
-    static Object translateResult(Object value) {
-        if (!(value instanceof String)) {
-            return value;
-        }
-        return TranslationDictionary.translate((String) value);
-    }
-
     static Object translateResourceResult(
             String resourceEntryName,
             Object value,

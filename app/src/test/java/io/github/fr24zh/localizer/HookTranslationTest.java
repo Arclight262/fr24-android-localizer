@@ -66,16 +66,6 @@ public final class HookTranslationTest {
     }
 
     @Test
-    public void translatesPlainStringResults() {
-        assertEquals("搜索", HookTranslation.translateResult("Search"));
-    }
-
-    @Test
-    public void preservesUnknownStrings() {
-        assertEquals("Unknown", HookTranslation.translateResult("Unknown"));
-    }
-
-    @Test
     public void translatesSearchResultCountsOnlyForTitleRight() {
         assertEquals("1/1 个机场", HookTranslation.translateTextArgument(
                 "txtTitleRight", "1 of 1 airports"));
@@ -131,17 +121,6 @@ public final class HookTranslationTest {
         assertSame(mutable, HookTranslation.translateTextArgument("txtTitleRight", mutable));
         assertSame(spanned, HookTranslation.translateTextArgument("txtTitleRight", spanned));
         assertEquals("1/1 个机场", HookTranslation.translateTextArgument("txtTitleRight", source));
-    }
-
-    @Test
-    public void preservesNonStringResultsByIdentity() {
-        StringBuilder styledOrMutableText = new StringBuilder("Search");
-        assertSame(styledOrMutableText, HookTranslation.translateResult(styledOrMutableText));
-    }
-
-    @Test
-    public void preservesNullResults() {
-        assertNull(HookTranslation.translateResult(null));
     }
 
     @Test
