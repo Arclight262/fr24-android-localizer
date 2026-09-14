@@ -1,5 +1,8 @@
 import org.gradle.api.tasks.compile.JavaCompile
 
+val moduleVersionCode: String by project
+val moduleVersionName: String by project
+
 plugins {
     id("com.android.application")
 }
@@ -13,8 +16,8 @@ android {
         applicationId = "io.github.fr24zh.localizer"
         minSdk = 27
         targetSdk = 35
-        versionCode = 3
-        versionName = "0.2.0-test"
+        versionCode = moduleVersionCode.toInt()
+        versionName = moduleVersionName
     }
 
     compileOptions {
