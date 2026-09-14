@@ -24,7 +24,7 @@
 5. 啟用 `FR24 中文化（非官方测试）` 模組。
 6. 模組作用域僅勾選 Flightradar24（`com.flightradar24free`），然後強制停止並重新開啟它。
 
-每個 CI 產物均包含帶版本號的 APK、`SHA256SUMS.txt` 與 `BUILD_INFO.txt`。請將 APK 的校驗和以及 `BUILD_INFO.txt` 中的提交，與下載頁面顯示的版本和提交進行核對。Actions 產物是使用 Android 偵錯簽署的暫時測試包。
+每個 CI 產物均包含帶版本號的 APK、`SHA256SUMS.txt` 與 `BUILD_INFO.txt`。請先計算 APK 的 SHA-256，並與 `SHA256SUMS.txt` 中的對應項目比較；再核對 `BUILD_INFO.txt` 的 versionName、versionCode、commit、workflowRun 與下載來源。
 
 此模組沒有啟動圖示或設定畫面，這是正常現象。
 
@@ -35,7 +35,7 @@
 首次測試時，可查看地圖、搜尋、航班詳情、機場詳情與設定等常見文字是否已變成中文。框架日誌中的下列內容可協助確認 Hook 是否安裝，但不能證明已完整涵蓋：
 
 ```text
-FR24ZH: resource-hook install method=getText
+FR24ZH: resource hook installed method=getText hookCount=2
 FR24ZH: text hook installed
 FR24ZH: content-description hook installed
 ```

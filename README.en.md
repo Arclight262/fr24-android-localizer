@@ -24,7 +24,7 @@ Other framework forks, Android versions, and Flightradar24 versions have not yet
 5. Enable the module named `FR24 中文化（非官方测试）`.
 6. Select only Flightradar24 for the module scope (`com.flightradar24free`), then force-stop and reopen it.
 
-Each CI artifact contains a versioned APK, `SHA256SUMS.txt`, and `BUILD_INFO.txt`. Compare the APK checksum and the commit in `BUILD_INFO.txt` with the version and commit shown on the page you downloaded from. Actions artifacts are temporary test builds signed with the Android debug certificate.
+Each CI artifact contains a versioned APK, `SHA256SUMS.txt`, and `BUILD_INFO.txt`. First calculate the APK SHA-256 and compare it with the corresponding entry in `SHA256SUMS.txt`; then check the `versionName`, `versionCode`, `commit`, and `workflowRun` in `BUILD_INFO.txt` against the download source.
 
 The module has no launcher icon or settings screen. This is expected.
 
@@ -35,7 +35,7 @@ Test builds are signed with an Android debug certificate. Local and CI certifica
 For an initial check, look for Chinese text on common screens such as the map, search, flight details, airport details, and settings. The following framework log entries can help confirm that the hooks were installed, but they do not prove complete coverage:
 
 ```text
-FR24ZH: resource-hook install method=getText
+FR24ZH: resource hook installed method=getText hookCount=2
 FR24ZH: text hook installed
 FR24ZH: content-description hook installed
 ```

@@ -24,7 +24,7 @@
 5. `FR24 中文化（非官方测试）` という名前のモジュールを有効にします。
 6. モジュールのスコープでは Flightradar24（`com.flightradar24free`）のみを選択し、強制停止してから再度起動します。
 
-各 CI 成果物には、バージョン付き APK、`SHA256SUMS.txt`、`BUILD_INFO.txt` が含まれます。APK のチェックサムと `BUILD_INFO.txt` のコミットを、ダウンロードしたページに表示されたバージョンおよびコミットと照合してください。Actions の成果物は Android のデバッグ証明書で署名された暫定テストビルドです。
+各 CI 成果物には、バージョン付き APK、`SHA256SUMS.txt`、`BUILD_INFO.txt` が含まれます。まず APK の SHA-256 を計算し、`SHA256SUMS.txt` の対応する項目と比較してください。その後、`BUILD_INFO.txt` の versionName、versionCode、commit、workflowRun をダウンロード元と照合してください。
 
 このモジュールにはランチャーアイコンや設定画面がありません。これは正常な動作です。
 
@@ -35,7 +35,7 @@
 最初の確認では、地図、検索、フライト詳細、空港詳細、設定などの一般的な画面が中国語になっているか確認します。フレームワークのログにある次の項目は Hook の導入確認に役立ちますが、すべての画面が翻訳されたことを示すものではありません。
 
 ```text
-FR24ZH: resource-hook install method=getText
+FR24ZH: resource hook installed method=getText hookCount=2
 FR24ZH: text hook installed
 FR24ZH: content-description hook installed
 ```

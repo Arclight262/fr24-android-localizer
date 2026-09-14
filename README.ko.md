@@ -24,7 +24,7 @@
 5. `FR24 中文化（非官方测试）` 모듈을 활성화합니다.
 6. 모듈 범위에는 Flightradar24(`com.flightradar24free`)만 선택한 뒤 강제 종료하고 다시 실행합니다.
 
-각 CI 아티팩트에는 버전이 포함된 APK, `SHA256SUMS.txt`, `BUILD_INFO.txt`가 들어 있습니다. APK 체크섬과 `BUILD_INFO.txt`의 커밋을 다운로드한 페이지에 표시된 버전 및 커밋과 비교하십시오. Actions 아티팩트는 Android 디버그 인증서로 서명된 임시 테스트 빌드입니다.
+각 CI 아티팩트에는 버전이 포함된 APK, `SHA256SUMS.txt`, `BUILD_INFO.txt`가 들어 있습니다. 먼저 APK의 SHA-256을 계산하여 `SHA256SUMS.txt`의 해당 항목과 비교하십시오. 그런 다음 `BUILD_INFO.txt`의 versionName, versionCode, commit, workflowRun을 다운로드 출처와 대조하십시오.
 
 이 모듈에는 런처 아이콘이나 설정 화면이 없습니다. 이는 정상입니다.
 
@@ -35,7 +35,7 @@
 처음 확인할 때는 지도, 검색, 항공편 상세 정보, 공항 상세 정보, 설정 등의 일반 화면이 중국어로 표시되는지 확인합니다. 다음 프레임워크 로그는 Hook 설치 여부를 확인하는 데 도움이 되지만 전체 번역 범위를 보장하지는 않습니다.
 
 ```text
-FR24ZH: resource-hook install method=getText
+FR24ZH: resource hook installed method=getText hookCount=2
 FR24ZH: text hook installed
 FR24ZH: content-description hook installed
 ```
