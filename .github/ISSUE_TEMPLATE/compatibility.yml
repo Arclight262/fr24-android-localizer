@@ -1,0 +1,58 @@
+name: 兼容性问题
+description: 报告模块未加载、无汉化、崩溃或框架兼容问题
+title: "[兼容性] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: 请先确认模块作用域只勾选 Flightradar24，并在修改作用域后强行停止再打开应用。不要上传完整日志、原版 APK、反编译产物或密钥。
+  - type: input
+    id: module_version
+    attributes:
+      label: 模块版本与来源
+      placeholder: 例如 0.2.1-test / Release 或 Actions 运行链接
+    validations:
+      required: true
+  - type: input
+    id: fr24_version
+    attributes:
+      label: Flightradar24 版本
+    validations:
+      required: true
+  - type: input
+    id: android_device
+    attributes:
+      label: Android 版本与设备
+    validations:
+      required: true
+  - type: input
+    id: framework
+    attributes:
+      label: Root、Zygisk 与 Xposed 框架
+      placeholder: 请包含各组件版本
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤
+    validations:
+      required: true
+  - type: textarea
+    id: observed
+    attributes:
+      label: 实际现象
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: 最小化且已脱敏的相关日志
+      description: 只保留 FR24ZH 相关行和必要上下文。
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 隐私确认
+      options:
+        - label: 我已移除个人信息、设备序列号、密钥、原版 APK、反编译产物和完整日志。
+          required: true
