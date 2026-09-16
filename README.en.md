@@ -62,7 +62,7 @@ A general build environment requires JDK 17, Android SDK Platform 35, Build Tool
 
 ```sh
 # Run after setting JAVA_HOME and ANDROID_HOME
-bash ./gradlew :app:testDebugUnitTest :app:assembleDebug
+bash ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 python3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 ```
 
@@ -70,13 +70,13 @@ On Windows, run:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/bootstrap-android.ps1
-powershell -ExecutionPolicy Bypass -File scripts/run-gradle.ps1 clean :app:testDebugUnitTest :app:assembleDebug
+powershell -ExecutionPolicy Bypass -File scripts/run-gradle.ps1 clean :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 ```
 
 `bootstrap-android.ps1` downloads the build tools into the project-local, Git-ignored `.tools` directory and does not perform a system-wide installation. It requires access to the download sources. Python must be installed separately; the bootstrap script does not install it.
 
-The [build workflow](.github/workflows/build.yml) runs unit tests, builds the APK, and verifies the package. Verification checks the module entry point, Xposed metadata, absence of declared permissions, and absence of packaged compile-time stubs. It is not a complete security audit and does not replace device testing. The first GitHub Actions build completed successfully; each later commit must be evaluated using its own workflow result.
+The [build workflow](.github/workflows/build.yml) runs unit tests, Lint, the APK build, and package verification. Verification checks the module entry point, Xposed metadata, package name, version, SDK levels, debug signature, absence of declared permissions, and absence of packaged compile-time stubs. It is not a complete security audit and does not replace device testing. The first GitHub Actions build completed successfully; each later commit must be evaluated using its own workflow result.
 
 ## Porting to another language
 
@@ -109,7 +109,7 @@ Recommended workflow: `Fork → lang/<locale-code> branch → translate → auto
 - Map tiles, web pages, payment SDKs, and Android/OEM system UI are outside the native-text coverage.
 - Three server-connection error messages have been translated but still need device validation by launching the app without a network connection. A previous offline prompt did not prove a server failure.
 - Reports of untranslated text should include the FR24, Android, and framework versions, the page path, and the original text. Redact personal information from screenshots. Do not upload device serial numbers, the original APK, complete logs, or keys.
-- The module writes limited diagnostic logs through the framework. Resource diagnostics record resource names, types, and match status, not the resource text. The framework itself has elevated privileges; install only modules you trust.
+- The module logs only hook installation success or failure through the framework. It does not log per-resource names, types, match status, or text. The framework itself has elevated privileges; install only modules you trust.
 
 ## Disclaimer
 

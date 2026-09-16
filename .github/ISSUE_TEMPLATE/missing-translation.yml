@@ -1,0 +1,48 @@
+name: 漏译反馈
+description: 报告仍显示英文或翻译不正确的界面文字
+title: "[漏译] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: 请勿上传 Flightradar24 原版 APK、反编译产物、完整设备日志、设备序列号或密钥。截图请先遮盖个人信息。
+  - type: input
+    id: fr24_version
+    attributes:
+      label: Flightradar24 版本
+      placeholder: 例如 11.9.0（110900000）
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Android 与框架环境
+      placeholder: 例如 Android 16 / SukiSU Ultra / NeoZygisk / Vector
+    validations:
+      required: true
+  - type: textarea
+    id: path
+    attributes:
+      label: 页面路径
+      description: 从应用启动页开始，说明如何进入出现问题的页面。
+    validations:
+      required: true
+  - type: textarea
+    id: source_text
+    attributes:
+      label: 英文原文与期望译文
+      description: 请逐条填写，不要只写“没有汉化”。
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 已脱敏截图或必要日志片段
+      description: 只附与问题直接相关的最小内容。
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: 隐私确认
+      options:
+        - label: 我已移除个人信息、设备序列号、密钥、原版 APK、反编译产物和完整日志。
+          required: true

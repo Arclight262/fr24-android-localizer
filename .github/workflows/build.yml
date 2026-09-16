@@ -8,21 +8,33 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
       - name: Set up Java 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
         with:
           distribution: temurin
           java-version: "17"
 
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
+        with:
+          cache-provider: basic
+
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@40fd30fb8d7440372e1316f5d1809ec01dcd3699 # v4.0.1
+        with:
+          packages: ""
 
       - name: Install Android SDK packages
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
@@ -33,10 +45,27 @@ jobs:
       - name: Verify APK packaging
         run: python3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 
+      - name: Verify APK metadata and signature
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk="app/build/outputs/apk/debug/app-debug.apk"
+          version="$(sed -n 's/^moduleVersionName=//p' gradle.properties)"
+          version_code="$(sed -n 's/^moduleVersionCode=//p' gradle.properties)"
+          build_tools="$ANDROID_HOME/build-tools/35.0.0"
+          badging="$("$build_tools/aapt" dump badging "$apk")"
+          grep -Fq "package: name='io.github.fr24zh.localizer' versionCode='${version_code}' versionName='${version}'" <<< "$badging"
+          grep -Fq "sdkVersion:'27'" <<< "$badging"
+          grep -Fq "targetSdkVersion:'35'" <<< "$badging"
+          signature="$("$build_tools/apksigner" verify --verbose --print-certs "$apk")"
+          grep -Fq 'Verified using v2 scheme (APK Signature Scheme v2): true' <<< "$signature"
+          grep -Fq 'CN=Android Debug' <<< "$signature"
+
       - name: Package identifiable artifact
         id: package
         shell: bash
         run: |
+          set -euo pipefail
           version="$(sed -n 's/^moduleVersionName=//p' gradle.properties)"
           version_code="$(sed -n 's/^moduleVersionCode=//p' gradle.properties)"
           short_sha="${GITHUB_SHA::7}"
@@ -57,7 +86,7 @@ jobs:
           echo "artifact_name=${artifact_name}" >> "$GITHUB_OUTPUT"
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: ${{ steps.package.outputs.artifact_name }}
           path: app/build/distributions/*

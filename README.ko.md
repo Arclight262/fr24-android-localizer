@@ -62,7 +62,7 @@ Vector/LSPosed에서 이 모듈의 Flightradar24 범위를 해제하거나 모�
 
 ```sh
 # JAVA_HOME 및 ANDROID_HOME을 설정한 뒤 실행
-bash ./gradlew :app:testDebugUnitTest :app:assembleDebug
+bash ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 python3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 ```
 
@@ -70,13 +70,13 @@ Windows에서는 다음을 실행합니다.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/bootstrap-android.ps1
-powershell -ExecutionPolicy Bypass -File scripts/run-gradle.ps1 clean :app:testDebugUnitTest :app:assembleDebug
+powershell -ExecutionPolicy Bypass -File scripts/run-gradle.ps1 clean :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 ```
 
 `bootstrap-android.ps1`은 빌드 도구를 Git에서 무시되는 프로젝트 내부의 `.tools` 디렉터리에 다운로드하며 시스템 전체 설치는 수행하지 않습니다. 다운로드 원본에 접근할 수 있어야 합니다. Python은 별도로 설치해야 하며 부트스트랩 스크립트는 Python을 설치하지 않습니다.
 
-[빌드 워크플로](.github/workflows/build.yml)는 단위 테스트를 실행하고 APK를 빌드한 다음 패키지를 검증합니다. 검증 항목에는 모듈 진입점, Xposed 메타데이터, 선언된 권한이 없는지 여부, 컴파일 전용 스텁이 패키지에 포함되지 않았는지 여부가 포함됩니다. 이는 완전한 보안 감사가 아니며 실기기 테스트를 대신할 수 없습니다. 첫 GitHub Actions 빌드는 성공했지만 이후 커밋은 각 워크플로 결과를 기준으로 확인해야 합니다.
+[빌드 워크플로](.github/workflows/build.yml)는 단위 테스트, Lint, APK 빌드 및 패키지 검증을 실행합니다. 검증 항목에는 모듈 진입점, Xposed 메타데이터, 패키지 이름, 버전, SDK, 디버그 서명, 선언된 권한이 없는지 여부, 컴파일 전용 스텁이 패키지에 포함되지 않았는지 여부가 포함됩니다. 이는 완전한 보안 감사가 아니며 실기기 테스트를 대신할 수 없습니다. 첫 GitHub Actions 빌드는 성공했지만 이후 커밋은 각 워크플로 결과를 기준으로 확인해야 합니다.
 
 ## 다른 언어로 포팅
 
@@ -109,7 +109,7 @@ py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 - 지도 타일, 웹 페이지, 결제 SDK, Android/OEM 시스템 UI는 네이티브 텍스트 적용 범위에 포함되지 않습니다.
 - 서버 연결 오류 메시지 3개에는 번역을 추가했지만 네트워크가 없는 상태에서 앱을 실행하는 실기기 검증이 아직 필요합니다. 이전의 오프라인 안내만으로 서버 장애를 증명할 수는 없습니다.
 - 미번역 텍스트를 신고할 때는 FR24, Android, 프레임워크 버전, 화면 경로, 원문을 포함하십시오. 스크린샷의 개인 정보는 가리고 기기 일련번호, 원본 APK, 전체 로그 또는 키는 업로드하지 마십시오.
-- 모듈은 프레임워크를 통해 제한된 진단 로그를 기록합니다. 리소스 진단은 리소스 이름, 유형, 일치 상태만 기록하고 리소스 본문은 기록하지 않습니다. 프레임워크 자체의 권한이 강력하므로 신뢰할 수 있는 모듈만 설치하십시오.
+- 모듈은 프레임워크에 Hook 설치 성공 또는 실패 정보만 기록하며 리소스별 이름, 유형, 일치 상태 또는 본문은 기록하지 않습니다. 프레임워크 자체의 권한이 강력하므로 신뢰할 수 있는 모듈만 설치하십시오.
 
 ## 고지 사항
 
