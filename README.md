@@ -62,7 +62,7 @@ FR24ZH: content-description hook installed
 
 ```sh
 # 设置 JAVA_HOME 和 ANDROID_HOME 后执行
-bash ./gradlew :app:testDebugUnitTest :app:assembleDebug
+bash ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 python3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 ```
 
@@ -70,13 +70,13 @@ Windows 环境可执行：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/bootstrap-android.ps1
-powershell -ExecutionPolicy Bypass -File scripts/run-gradle.ps1 clean :app:testDebugUnitTest :app:assembleDebug
+powershell -ExecutionPolicy Bypass -File scripts/run-gradle.ps1 clean :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 ```
 
 `bootstrap-android.ps1` 把构建工具下载到被 Git 忽略的项目本地 `.tools` 目录，不修改系统级安装；需要可访问下载源。Python 需另行安装，引导脚本不安装 Python。
 
-[构建工作流](.github/workflows/build.yml) 运行单元测试、构建与 APK 校验。校验检查模块入口、Xposed 元数据、未声明权限及未打包编译用桩；它不是完整安全审计，也不能代替真机测试。首次 GitHub Actions 构建已验证通过，后续仍应以每次提交的工作流结果为准。
+[构建工作流](.github/workflows/build.yml) 运行单元测试、Lint、构建与 APK 校验。校验检查模块入口、Xposed 元数据、包名、版本、SDK、调试签名、未声明权限及未打包编译用桩；它不是完整安全审计，也不能代替真机测试。首次 GitHub Actions 构建已验证通过，后续仍应以每次提交的工作流结果为准。
 
 ## 移植到其他语言
 
@@ -109,7 +109,7 @@ py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 - 地图底图、网页、支付 SDK 和 Android/OEM 系统界面不属于原生文字覆盖范围。
 - 三处服务器连接错误提示已加入翻译，尚待未联网启动时真机复现验收；此前离线提示不证明服务器故障。
 - 漏译反馈请附 FR24、Android 和框架版本、页面路径与原文。截图需遮盖个人信息，不上传设备序列号、原版 APK、完整日志或密钥。
-- 模块通过框架写入有限诊断日志；资源诊断记录资源名、类型和命中状态，不记录资源正文。框架本身权限较高，请只安装可信模块。
+- 模块只通过框架记录 Hook 安装成功或失败信息，不记录逐资源的名称、类型、命中状态或正文。框架本身权限较高，请只安装可信模块。
 
 ## 声明
 

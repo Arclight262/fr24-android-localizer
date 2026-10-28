@@ -62,7 +62,7 @@ FR24ZH: content-description hook installed
 
 ```sh
 # 設定 JAVA_HOME 與 ANDROID_HOME 後執行
-bash ./gradlew :app:testDebugUnitTest :app:assembleDebug
+bash ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 python3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 ```
 
@@ -70,13 +70,13 @@ Windows 環境可執行：
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/bootstrap-android.ps1
-powershell -ExecutionPolicy Bypass -File scripts/run-gradle.ps1 clean :app:testDebugUnitTest :app:assembleDebug
+powershell -ExecutionPolicy Bypass -File scripts/run-gradle.ps1 clean :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 ```
 
 `bootstrap-android.ps1` 會將建置工具下載至專案本機且已被 Git 忽略的 `.tools` 目錄，不會進行系統層級安裝；需要能夠存取下載來源。Python 必須另外安裝，引導指令碼不會安裝 Python。
 
-[建置工作流程](.github/workflows/build.yml) 會執行單元測試、建置 APK 並驗證套件。驗證項目包括模組進入點、Xposed 中繼資料、未宣告權限，以及未封裝僅供編譯使用的樁程式碼；這並非完整安全稽核，也無法取代實機測試。第一次 GitHub Actions 建置已驗證成功，後續仍應以每次提交各自的工作流程結果為準。
+[建置工作流程](.github/workflows/build.yml) 會執行單元測試、Lint、建置 APK 並驗證套件。驗證項目包括模組進入點、Xposed 中繼資料、套件名稱、版本、SDK、偵錯簽章、未宣告權限，以及未封裝僅供編譯使用的樁程式碼；這並非完整安全稽核，也無法取代實機測試。第一次 GitHub Actions 建置已驗證成功，後續仍應以每次提交各自的工作流程結果為準。
 
 ## 移植到其他語言
 
@@ -109,7 +109,7 @@ py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 - 地圖圖磚、網頁、付款 SDK 及 Android/OEM 系統介面不在原生文字涵蓋範圍內。
 - 三則伺服器連線錯誤提示已加入翻譯，但仍需透過無網路啟動應用程式進行實機驗證；先前的離線提示不能證明伺服器故障。
 - 回報未翻譯文字時，請附上 FR24、Android 與框架版本、頁面路徑及原文。截圖必須遮蔽個人資訊；請勿上傳裝置序號、原版 APK、完整日誌或金鑰。
-- 模組會透過框架寫入有限的診斷日誌；資源診斷只記錄資源名稱、類型與命中狀態，不記錄資源正文。框架本身具有較高權限，請只安裝可信任的模組。
+- 模組只會透過框架記錄 Hook 安裝成功或失敗資訊，不記錄逐項資源的名稱、類型、命中狀態或正文。框架本身具有較高權限，請只安裝可信任的模組。
 
 ## 聲明
 

@@ -62,7 +62,7 @@ Vector/LSPosed で本モジュールのスコープから Flightradar24 を外�
 
 ```sh
 # JAVA_HOME と ANDROID_HOME を設定してから実行
-bash ./gradlew :app:testDebugUnitTest :app:assembleDebug
+bash ./gradlew :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 python3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 ```
 
@@ -70,13 +70,13 @@ Windows では次を実行します。
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/bootstrap-android.ps1
-powershell -ExecutionPolicy Bypass -File scripts/run-gradle.ps1 clean :app:testDebugUnitTest :app:assembleDebug
+powershell -ExecutionPolicy Bypass -File scripts/run-gradle.ps1 clean :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
 py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 ```
 
 `bootstrap-android.ps1` は、ビルドツールを Git の追跡対象外であるプロジェクト内の `.tools` ディレクトリへダウンロードし、システム全体へのインストールは行いません。ダウンロード元へアクセスできる必要があります。Python は別途インストールしてください。このブートストラップスクリプトは Python をインストールしません。
 
-[ビルドワークフロー](.github/workflows/build.yml) は、単体テスト、APK のビルド、パッケージ検証を実行します。検証では、モジュールのエントリーポイント、Xposed メタデータ、権限宣言がないこと、コンパイル専用スタブがパッケージに含まれないことを確認します。これは完全なセキュリティ監査ではなく、実機テストの代わりにはなりません。最初の GitHub Actions ビルドは成功済みですが、以降のコミットについては毎回そのワークフロー結果を確認してください。
+[ビルドワークフロー](.github/workflows/build.yml) は、単体テスト、Lint、APK のビルド、パッケージ検証を実行します。検証では、モジュールのエントリーポイント、Xposed メタデータ、パッケージ名、バージョン、SDK、デバッグ署名、権限宣言がないこと、コンパイル専用スタブがパッケージに含まれないことを確認します。これは完全なセキュリティ監査ではなく、実機テストの代わりにはなりません。最初の GitHub Actions ビルドは成功済みですが、以降のコミットについては毎回そのワークフロー結果を確認してください。
 
 ## 他の言語への移植
 
@@ -109,7 +109,7 @@ py -3 scripts/verify-apk.py app/build/outputs/apk/debug/app-debug.apk
 - 地図タイル、Web ページ、決済 SDK、Android/OEM のシステム UI は、ネイティブテキストの対象外です。
 - サーバー接続エラーの 3 件のメッセージは翻訳済みですが、ネットワーク未接続の状態でアプリを起動する実機検証が残っています。以前表示されたオフラインメッセージだけではサーバー障害とは判断できません。
 - 未翻訳テキストを報告する場合は、FR24、Android、フレームワークの各バージョン、画面への経路、原文を添えてください。スクリーンショットでは個人情報を伏せ、端末のシリアル番号、公式 APK、完全なログ、鍵はアップロードしないでください。
-- モジュールはフレームワークを通じて限定的な診断ログを書き込みます。リソース診断に記録されるのはリソース名、型、一致状態だけで、リソース本文は記録しません。フレームワーク自体は強い権限を持つため、信頼できるモジュールだけをインストールしてください。
+- モジュールがフレームワークへ記録するのは Hook の導入成功または失敗だけです。リソースごとの名前、型、一致状態、本文は記録しません。フレームワーク自体は強い権限を持つため、信頼できるモジュールだけをインストールしてください。
 
 ## 免責事項
 
